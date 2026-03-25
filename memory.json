@@ -1,0 +1,17 @@
+{
+  "memoryData": {
+    "subjects": [
+      "Hello",
+      "World",
+      "Python",
+      "TEST_SUBJECT",
+      "Hello this is test mail"
+    ],
+    "usernames": [
+      "mrtrojanbghh@yandex.com"
+    ],
+    "sendTo": [
+      "adnankhanakib007@gmail.com"
+    ]
+  }
+}

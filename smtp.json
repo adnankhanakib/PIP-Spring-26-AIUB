@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Yandex",
+    "host": "smtp.yandex.com",
+    "port": 587,
+    "username": "YOUR_MAIL@yandex.com",
+    "password": "PASS",
+    "tls": true,
+    "from_name": "Yandex"
+  }
+]
