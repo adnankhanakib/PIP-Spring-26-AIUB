@@ -103,6 +103,28 @@ def _pick_html_body():
         return f.read()
 
 
+def _collect_attachments() -> list:
+    """Interactively collect file paths to attach. Returns a list (may be empty)."""
+    attachments = []
+    while True:
+        add = questionary.confirm(
+            f"Add {'an' if not attachments else 'another'} attachment?",
+            default=False
+        ).ask()
+        if not add:
+            break
+        path = ask_text("File path:", allow_empty=True)
+        if not path:
+            continue
+        path = path.strip('"').strip("'")
+        if not os.path.isfile(path):
+            print(f"  File not found: {path}")
+            continue
+        attachments.append(path)
+        print(f"  Added: {os.path.basename(path)}")
+    return attachments
+
+
 def send_single_email_flow():
     print("\n── Send Single Email ──")
 
@@ -132,18 +154,24 @@ def send_single_email_flow():
             body = _require(ask_text("Plain-text body:"))
             html = None
 
-        print(f"\n  Config : {config['name']} ({smtp_server})")
+        attachments = _collect_attachments()
+
+        print(f"\n  Config      : {config['name']} ({smtp_server})")
         from_display = f"{from_name} <{sender}>" if from_name else sender
-        print(f"  From   : {from_display}")
-        print(f"  To     : {to}")
-        print(f"  Subject: {subject}")
+        print(f"  From        : {from_display}")
+        print(f"  To          : {to}")
+        print(f"  Subject     : {subject}")
+        if attachments:
+            print(f"  Attachments : {len(attachments)} file(s)")
+            for a in attachments:
+                print(f"    - {os.path.basename(a)}")
         if not _require(questionary.confirm("Send this email?", default=True).ask()):
             print("Cancelled.")
             questionary.press_any_key_to_continue().ask()
             return
 
         client = EmailSender(smtp_server, port, username, password, use_tls=use_tls, from_name=from_name)
-        ok = client.send_email(sender, [to], subject, body=body, html=html)
+        ok = client.send_email(sender, [to], subject, body=body, html=html, attachments=attachments or None)
 
         if ok:
             mem.add_to("usernames", sender)
