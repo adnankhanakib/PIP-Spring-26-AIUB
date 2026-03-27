@@ -1,0 +1,58 @@
+Metadata-Version: 2.1
+Name: spamcheck
+Version: 1.0.4
+Summary: A simple Python wrapper for Postmark's Spamcheck API
+Home-page: https://github.com/Tesorio/spamcheck-python
+Author: Tesorio
+Author-email: hello@tesorio.com
+License: MIT License
+Keywords: postmark spam spamcheck
+License-File: LICENSE
+Requires-Dist: requests
+
+Spamcheck-Python
+================
+
+|PyPI| |GitHub license|
+
+A simple Python wrapper for `Postmark’s Spamcheck API`_
+
+Installation
+------------
+
+.. code:: bash
+
+    $ pip install spamcheck
+
+Usage
+-----
+
+.. code:: python
+
+    import spamcheck
+
+    result = spamcheck.check(your_email_content, report=True)
+    score = result['score']
+    report = result['report']
+
+Publishing
+----------
+
+.. code:: bash
+
+    $ pip install build twine
+    $ python -m build
+    $ twine upload dist/*
+
+License
+-------
+
+This software is licensed under `MIT License`_
+
+.. _Postmark’s Spamcheck API: http://spamcheck.postmarkapp.com/doc
+.. _MIT License: https://github.com/Tesorio/spamcheck-python/blob/master/LICENSE
+
+.. |PyPI| image:: https://img.shields.io/pypi/v/spamcheck.svg
+    :target: https://pypi.python.org/pypi/spamcheck
+.. |GitHub license| image:: https://img.shields.io/badge/license-MIT-blue.svg
+    :target: https://github.com/Tesorio/spamcheck-python/blob/master/LICENSE

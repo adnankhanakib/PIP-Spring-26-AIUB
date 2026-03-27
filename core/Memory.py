@@ -4,8 +4,7 @@ import os
 class Memory:
     def __init__(self):
         self.filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "memory.json")
-        self.data = self.load_data() or {}  # default to empty dict
-        # Ensure the required structure exists
+        self.data = self.load_data() or {} 
         if "memoryData" not in self.data:
             self.data["memoryData"] = {"subjects": [], "usernames": [], "sendTo": []}
         if "subjects" not in self.data["memoryData"]:
@@ -35,7 +34,6 @@ class Memory:
             self.save_data()
 
     def add_to(self, key, value):
-        """Append value to a memoryData list if not already present."""
         lst = self.data["memoryData"].setdefault(key, [])
         if value and value not in lst:
             lst.append(value)

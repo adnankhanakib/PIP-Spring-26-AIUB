@@ -15,7 +15,6 @@ class _Cancelled(Exception):
 
 
 def _require(value):
-    """Raise _Cancelled if a questionary prompt returned None (Ctrl+C / Escape)."""
     if value is None:
         raise _Cancelled
     return value
@@ -43,7 +42,7 @@ def _save_smtp_config(config):
 
 
 def _collect_custom_smtp():
-    print("\n── Custom SMTP Details ──")
+    print("\n-- Custom SMTP Details --")
     host = _require(ask_text("SMTP host:", default="smtp.gmail.com"))
     port = int(_require(ask_text("SMTP port:", default="587")))
     tls_choice = _require(questionary.select(
@@ -106,21 +105,15 @@ def _pick_html_body():
 
 
 def _resolve_placeholders(content: str, context: dict) -> str:
-    """Replace {{placeholder}} tokens in content.
-
-    Built-in tokens are filled from context automatically.
-    Any unrecognised token triggers a user prompt (asked once per unique name).
-    """
-    # Find all unique placeholder names in the content
     found = list(dict.fromkeys(re.findall(r'\{\{(\w+)\}\}', content)))
     if not found:
         return content
 
-    values = dict(context)  # start with auto-resolved values
+    values = dict(context) 
 
     unknown = [name for name in found if name not in values]
     if unknown:
-        print("\n── Template Placeholders ──")
+        print("\n-- Template Placeholders --")
         for name in unknown:
             values[name] = _require(ask_text(f"Value for {{{{{name}}}}}:"))
 
@@ -131,7 +124,6 @@ def _resolve_placeholders(content: str, context: dict) -> str:
 
 
 def _collect_attachments() -> list:
-    """Interactively collect file paths to attach. Returns a list (may be empty)."""
     attachments = []
     while True:
         add = questionary.confirm(
@@ -153,7 +145,7 @@ def _collect_attachments() -> list:
 
 
 def send_single_email_flow():
-    print("\n── Send Single Email ──")
+    print("\n-- Send Single Email --")
 
     try:
         config = _pick_smtp_config()
@@ -182,7 +174,6 @@ def send_single_email_flow():
             body = _require(ask_text("Plain-text body:"))
             html = None
 
-        # Resolve {{placeholders}} — built-ins filled automatically, unknowns prompted
         ctx = {
             "from_mail":   sender,
             "to_mail":     to,
