@@ -1,5 +1,7 @@
 import json
 import os
+import re
+from datetime import date
 import questionary
 from core.EmailClient import EmailSender
 from core.Memory import Memory
@@ -103,6 +105,31 @@ def _pick_html_body():
         return f.read()
 
 
+def _resolve_placeholders(content: str, context: dict) -> str:
+    """Replace {{placeholder}} tokens in content.
+
+    Built-in tokens are filled from context automatically.
+    Any unrecognised token triggers a user prompt (asked once per unique name).
+    """
+    # Find all unique placeholder names in the content
+    found = list(dict.fromkeys(re.findall(r'\{\{(\w+)\}\}', content)))
+    if not found:
+        return content
+
+    values = dict(context)  # start with auto-resolved values
+
+    unknown = [name for name in found if name not in values]
+    if unknown:
+        print("\n── Template Placeholders ──")
+        for name in unknown:
+            values[name] = _require(ask_text(f"Value for {{{{{name}}}}}:"))
+
+    for name, value in values.items():
+        content = content.replace(f'{{{{{name}}}}}', value)
+
+    return content
+
+
 def _collect_attachments() -> list:
     """Interactively collect file paths to attach. Returns a list (may be empty)."""
     attachments = []
@@ -144,6 +171,7 @@ def send_single_email_flow():
         sender = _require(ask_email_autocomplete("From address:", choices=usernames, default=username))
 
         to = _require(ask_email_autocomplete("To address:", choices=mem.get("sendTo") or []))
+        to_name = _require(ask_text("Recipient name:", default=to.split("@")[0]))
         subject = _require(ask_autocomplete("Subject:", choices=mem.get("subjects") or []))
 
         use_html = _require(questionary.confirm("Send as HTML?", default=False).ask())
@@ -153,6 +181,19 @@ def send_single_email_flow():
         else:
             body = _require(ask_text("Plain-text body:"))
             html = None
+
+        # Resolve {{placeholders}} — built-ins filled automatically, unknowns prompted
+        ctx = {
+            "from_mail":   sender,
+            "to_mail":     to,
+            "to_name":     to_name,
+            "today_date":  date.today().strftime("%B %d, %Y"),
+        }
+        if html is not None:
+            html = _resolve_placeholders(html, ctx)
+        if body is not None:
+            body = _resolve_placeholders(body, ctx)
+        subject = _resolve_placeholders(subject, ctx)
 
         attachments = _collect_attachments()
 
