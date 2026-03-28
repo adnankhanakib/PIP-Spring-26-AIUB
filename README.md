@@ -1,0 +1,1 @@
+# SuperSender - Email sending CLI
