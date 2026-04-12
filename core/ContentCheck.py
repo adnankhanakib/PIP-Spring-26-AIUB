@@ -9,11 +9,7 @@ import spamcheck
 _FALLBACK_DOMAINS = (
     "1secmail.com",
     "1secmail.net",
-    "1secmail.org",
-    "esiix.com",
-    "wwjmp.com",
-    "xojxe.com",
-    "yoggm.com",
+    "1secmail.org"
 )
 
 _API = "https://www.1secmail.com/api/v1/"
@@ -115,7 +111,7 @@ class ContentChecker:
             if not inbox:
                 return None
             msg = self._get_message(inbox[0]["id"])
-        except Exception:
+        except Exception as ex:
             return None
 
         html_content = msg.get("htmlBody") or f"<html><body>{msg.get('textBody', '')}</body></html>"
